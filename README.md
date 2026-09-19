@@ -1,3 +1,170 @@
+# TL;DR: Where the Raw13G Code Came From
+
+If you're not familiar with PS4 exploit development, the simplest way to understand this is:
+
+**Earlier PS4 research → OOMfie / OnePS → Raw13G**
+
+The important part is that these are not just three projects that happen to solve the same problem. The evidence concerns **specific implementation choices that were carried over.**
+
+## 1. The work started with earlier PS4 research
+
+The underlying SSV research did not originate entirely with Bel. Bel's own OnePS documentation credits the earlier researcher responsible for the original SSV shape.
+
+That distinction matters:
+
+**The underlying research has its own history and deserves its own credit.**
+
+Bel then developed that research into a concrete PS4 exploitation implementation.
+
+## 2. Bel turned that research into OOMfie / OnePS
+
+OOMfie and OnePS contain my actual implementation work: the JavaScript exploitation framework, the fake-cell/carrier system, the grooming system, and supporting `int64.js` implementation.
+
+One particularly important historical point is that the OOMfie implementation was already publicly present in commit:
+
+`3d7955d7b85982d5f6160adf9ba6cd56278fc300`
+
+That commit introduced `core.js`, `int64.js`, `fn_leak.js`, `index.html`, and `ps4_offsets.js`.
+
+So this isn't just a claim based on a README or a retrospective explanation. The implementation exists in the Git history itself.
+
+## 3. Raw13G contains extremely specific pieces of that implementation
+
+This is where the issue becomes significant.
+
+Raw13G's code does not merely use the same general idea.
+
+Its `int64.js` contains the same highly specific implementation fingerprint found in OOMfie:
+
+* the `low`, `hi`, and `backing` properties
+* the `zeroFill()` helper
+* the same method names
+* the same arithmetic structure
+* the same technique where the backing `Uint8Array` moves along with the integer
+* the same overflow error strings
+* the same ES-module exports
+
+Those are implementation decisions, not requirements imposed by the PS4 or JavaScript.
+
+The same pattern appears in `core.js`.
+
+Raw13G contains the same unusually specific identifiers and structures, including:
+
+* `DUPLICATE_INDEX`
+* `CONTROL_INDEX`
+* `CONTROL_INT`
+* `FILLER_BIGINTS`
+* `FILLER_OBJECTS`
+* `EXPECTED_LENGTH`
+* `CELL_BYTES`
+* `FUNCTION_BYTES`
+* `NATIVE_EXECUTABLE_BYTES`
+* `HOLDER_BYTES`
+
+It also contains the same distinctive function structure, including:
+
+* `leakScopeObject`
+* `prepareSymbolWrapper`
+* `buildFakeHost`
+* `buildAndStoreGraph`
+* `prepareAddrof`
+* `fillRawCellPointers`
+* `loadHistoryCritical`
+* `runGroomAndLoad`
+* `beginComposition`
+* `reportComposition`
+
+And it retains the same unusual exploitation architecture, including the `history.replaceState()` object graph construction, fake-cell/carrier design, and the same named grooming stages.
+
+That combination is the evidence.
+
+## 4. This isn't claiming Raw13G did nothing original
+
+Raw13G does contain modifications.
+
+For example, it changes things such as grooming values, carrier geometry, firmware-specific values, and adds surrounding components such as `mem.js` and `jb.js`.
+
+The claim is narrower:
+
+> **Raw13G's `core.js` and `int64.js` are derivatives of my OOMfie/OnePS implementation, rather than independent implementations.**
+
+## 5. Why the specific names and values matter
+
+Someone independently implementing the same general exploit could obviously arrive at:
+
+> "I need a 64-bit integer class."
+
+That alone means nothing.
+
+But independently arriving at:
+
+> the same unusual property names,
+> the same helper function,
+> the same method names,
+> the same backing-store behavior,
+> the same error messages,
+> the same export structure,
+> the same fake-cell architecture,
+> the same function names,
+> the same object layout constants,
+> and the same grooming terminology
+
+is a completely different kind of overlap.
+
+The evidence is therefore not simply:
+
+**"Raw13G uses the same exploit idea."**
+
+It is:
+
+**"Raw13G contains implementation decisions that were already present together in MY's published source."**
+
+## 6. The chain in one picture
+
+```text
+Earlier SSV research
+        │
+        │ underlying research
+        ▼
+   Bel / OOMfie
+        │
+        │ concrete implementation
+        │
+        ├── core.js
+        ├── int64.js
+        ├── fn_leak.js
+        └── ps4_offsets.js
+        │
+        ▼
+     OnePS
+        │
+        │ implementation lineage
+        ▼
+     Raw13G
+        │
+        ├── core.js   ← substantial source-level overlap
+        ├── int64.js  ← highly specific matching implementation
+        ├── mem.js
+        ├── jb.js
+        └── other files
+```
+
+## Bottom line
+
+You do **not** need to understand JavaScript exploitation to understand the argument.
+
+The argument is not:
+
+> "They made something similar."
+
+It is:
+
+> **"Code published in OOMfie/OnePS contains a very specific collection of implementation choices. Raw13G contains that same collection of choices, including unusual names, structures, behaviors, and even exact strings."**
+
+The historical OOMfie commit establishes that this implementation existed publicly in source before the later documentation changes. The current Raw13G source contains the matching implementation patterns.
+
+
+
 # Provenance: Raw13G's `core.js` and `int64.js` are derivatives of OnePS/OOMfie.
 
 **The claim, stated once:** The `core.js` and `int64.js` currently published at `raw13g/raw13g.github.io` are source-level derivatives of the implementation published by bel (`thebelx/OnePS`, `thebelx/oomfietest`).
